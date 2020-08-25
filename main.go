@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	handler := http.HandlerFunc(server.Server)
+	var server *server.Server
+	handler := http.HandlerFunc(server.ServeHTTP)
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatalf("could not listen on port 8080 %v", err)
 	}
