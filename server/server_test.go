@@ -20,16 +20,24 @@ func (s *StubPlayerStore) GetPlayerScore(name string) int {
 
 func TestMain(t *testing.T) {
 	tests := map[string]struct {
-		name string
-		want string
+		name   string
+		want   string
+		status int
 	}{
 		"a": {
-			name: "a",
-			want: "20",
+			name:   "a",
+			want:   "20",
+			status: http.StatusOK,
 		},
 		"b": {
-			name: "b",
-			want: "10",
+			name:   "b",
+			want:   "10",
+			status: http.StatusOK,
+		},
+		"missing players": {
+			name:   "c",
+			want:   "0",
+			status: http.StatusNotFound,
 		},
 	}
 
@@ -49,6 +57,7 @@ func TestMain(t *testing.T) {
 
 			svr.ServeHTTP(response, request)
 
+			assertResponseCode(t, response.Code, test.status)
 			assertResponseBody(t, response.Body.String(), test.want)
 		})
 	}
@@ -57,6 +66,13 @@ func TestMain(t *testing.T) {
 func newGetScoreRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/tasks/%s", name), nil)
 	return req
+}
+
+func assertResponseCode(t *testing.T, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("got status %v, want %v", got, want)
+	}
 }
 
 func assertResponseBody(t *testing.T, got, want string) {
