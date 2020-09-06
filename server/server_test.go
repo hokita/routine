@@ -10,7 +10,8 @@ import (
 )
 
 type StubPlayerStore struct {
-	scores map[string]int
+	scores   map[string]int
+	winCalls []string
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) int {
@@ -18,7 +19,11 @@ func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	return score
 }
 
-func TestMain(t *testing.T) {
+func (s *StubPlayerStore) RecordWin(name string) {
+	s.winCalls = append(s.winCalls, name)
+}
+
+func TestGetPlayers(t *testing.T) {
 	tests := map[string]struct {
 		name   string
 		want   string
@@ -57,8 +62,42 @@ func TestMain(t *testing.T) {
 
 			svr.ServeHTTP(response, request)
 
-			assertResponseCode(t, response.Code, test.status)
+			assertStatus(t, response.Code, test.status)
 			assertResponseBody(t, response.Body.String(), test.want)
+		})
+	}
+}
+
+func TestStoreWin(t *testing.T) {
+	tests := map[string]struct {
+		name   string
+		want   int
+		status int
+	}{
+		"a": {
+			name:   "a",
+			want:   1,
+			status: http.StatusAccepted,
+		},
+	}
+
+	store := StubPlayerStore{
+		scores: map[string]int{},
+	}
+	svr := server.Server{&store}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			request := newPostWinRequest(test.name)
+			response := httptest.NewRecorder()
+
+			svr.ServeHTTP(response, request)
+
+			assertStatus(t, response.Code, test.status)
+
+			if len(store.winCalls) != test.want {
+				t.Errorf("got %v calls to RecordWin want %v", len(store.winCalls), test.want)
+			}
 		})
 	}
 }
@@ -68,7 +107,12 @@ func newGetScoreRequest(name string) *http.Request {
 	return req
 }
 
-func assertResponseCode(t *testing.T, got, want int) {
+func newPostWinRequest(name string) *http.Request {
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/tasks/%s", name), nil)
+	return req
+}
+
+func assertStatus(t *testing.T, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got status %v, want %v", got, want)
