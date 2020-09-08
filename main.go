@@ -9,11 +9,11 @@ import (
 
 type InMemoryStore struct{}
 
-func (i *InMemoryStore) GetPlayerScore(name string) int {
-	return 123
+func (i *InMemoryStore) GetTaskName(id int) string {
+	return "task name"
 }
 
-func (i *InMemoryStore) RecordWin(name string) {}
+func (i *InMemoryStore) CreateTask(name string) {}
 
 func main() {
 	s := &server.Server{Store: &InMemoryStore{}}

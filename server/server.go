@@ -3,39 +3,43 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-type PlayerStore interface {
-	GetPlayerScore(name string) int
-	RecordWin(name string)
+type TaskStore interface {
+	GetTaskName(id int) string
+	CreateTask(name string)
 }
 
 type Server struct {
-	Store PlayerStore
+	Store TaskStore
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		s.processWin(w)
+		s.createTask(w)
 	case http.MethodGet:
-		s.showScore(w, r)
+		s.showTask(w, r)
 	}
 }
 
-func (s *Server) showScore(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/tasks/")
+func (s *Server) showTask(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
-	score := s.Store.GetPlayerScore(player)
-	if score == 0 {
+	name := s.Store.GetTaskName(id)
+	if name == "" {
 		w.WriteHeader(http.StatusNotFound)
 	}
 
-	fmt.Fprint(w, score)
+	fmt.Fprint(w, name)
 }
 
-func (s *Server) processWin(w http.ResponseWriter) {
-	s.Store.RecordWin("Bob")
+func (s *Server) createTask(w http.ResponseWriter) {
+	s.Store.CreateTask("task")
 	w.WriteHeader(http.StatusAccepted)
 }

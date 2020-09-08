@@ -4,52 +4,46 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/hokita/routine/server"
 )
 
-type StubPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
+type StubTaskStore struct {
+	names map[int]string
 }
 
-func (s *StubPlayerStore) GetPlayerScore(name string) int {
-	score := s.scores[name]
-	return score
+func (s *StubTaskStore) GetTaskName(id int) string {
+	name := s.names[id]
+	return name
 }
 
-func (s *StubPlayerStore) RecordWin(name string) {
-	s.winCalls = append(s.winCalls, name)
+func (s *StubTaskStore) CreateTask(name string) {
+	s.names[2] = name
 }
 
-func TestGetPlayers(t *testing.T) {
+func TestGetTasks(t *testing.T) {
 	tests := map[string]struct {
-		name   string
+		id     int
 		want   string
 		status int
 	}{
-		"a": {
-			name:   "a",
-			want:   "20",
+		"task1": {
+			id:     1,
+			want:   "task1",
 			status: http.StatusOK,
 		},
-		"b": {
-			name:   "b",
-			want:   "10",
-			status: http.StatusOK,
-		},
-		"missing players": {
-			name:   "c",
-			want:   "0",
+		"missing tasks": {
+			id:     2,
 			status: http.StatusNotFound,
 		},
 	}
 
-	store := StubPlayerStore{
-		scores: map[string]int{
-			"a": 20,
-			"b": 10,
+	store := StubTaskStore{
+		names: map[int]string{
+			1: "task1",
 		},
 	}
 
@@ -57,7 +51,7 @@ func TestGetPlayers(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			request := newGetScoreRequest(test.name)
+			request := newGetTaskRequest(test.id)
 			response := httptest.NewRecorder()
 
 			svr.ServeHTTP(response, request)
@@ -68,47 +62,51 @@ func TestGetPlayers(t *testing.T) {
 	}
 }
 
-func TestStoreWin(t *testing.T) {
+func TestCreateTask(t *testing.T) {
 	tests := map[string]struct {
 		name   string
 		want   int
 		status int
 	}{
-		"a": {
-			name:   "a",
+		"task": {
+			name:   "task2",
 			want:   1,
 			status: http.StatusAccepted,
 		},
 	}
 
-	store := StubPlayerStore{
-		scores: map[string]int{},
+	store := StubTaskStore{
+		names: map[int]string{},
 	}
 	svr := server.Server{&store}
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			request := newPostWinRequest(test.name)
+			request := newPostTaskRequest(test.name)
 			response := httptest.NewRecorder()
 
 			svr.ServeHTTP(response, request)
 
 			assertStatus(t, response.Code, test.status)
 
-			if len(store.winCalls) != test.want {
-				t.Errorf("got %v calls to RecordWin want %v", len(store.winCalls), test.want)
+			if len(store.names) != test.want {
+				t.Errorf("got %v calls to RecordWin want %v", len(store.names), test.want)
 			}
 		})
 	}
 }
 
-func newGetScoreRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/tasks/%s", name), nil)
+func newGetTaskRequest(id int) *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/tasks/%d", id), nil)
+
 	return req
 }
 
-func newPostWinRequest(name string) *http.Request {
-	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/tasks/%s", name), nil)
+func newPostTaskRequest(name string) *http.Request {
+	data := url.Values{}
+	data.Set("name", name)
+
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/tasks/"), strings.NewReader(data.Encode()))
 	return req
 }
 
