@@ -5,26 +5,38 @@ import (
 	"net/http"
 
 	"github.com/hokita/routine/server"
-
-	_ "github.com/lib/pq"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-type InMemoryStore struct{}
+type InMemoryStore struct {
+	DB *gorm.DB
+}
 
 func (i *InMemoryStore) GetTaskName(id int) string {
-	return "task name"
+	var task Task
+	i.DB.First(&task, "id=?", id)
+
+	return task.Name
 }
 
 func (i *InMemoryStore) CreateTask(name string) {}
 
-func main() {
-	s := &server.Server{Store: &InMemoryStore{}}
+type Task struct {
+	ID        int
+	Name      string
+	CreatedAt string
+	UpdatedAt string
+}
 
-	// var Db *sql.DB
-	// Db, err := sql.Open("postgres", "host=postgres user=app password=password dbname=routine sslmode=disable")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+func main() {
+	db, err := gorm.Open("postgres", "host=db user=app dbname=routine password=password sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	s := &server.Server{Store: &InMemoryStore{db}}
 
 	handler := http.HandlerFunc(s.ServeHTTP)
 	if err := http.ListenAndServe(":8080", handler); err != nil {
