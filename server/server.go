@@ -29,6 +29,7 @@ func (s *Server) showTask(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	name := s.Store.GetTaskName(id)
