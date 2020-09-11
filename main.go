@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/hokita/routine/server"
 	"github.com/jinzhu/gorm"
@@ -20,13 +21,29 @@ func (i *InMemoryStore) GetTaskName(id int) string {
 	return task.Name
 }
 
-func (i *InMemoryStore) CreateTask(name string) {}
+func (i *InMemoryStore) CreateTask(name string) (int, error) {
+	now := time.Now()
+
+	task := Task{
+		Name:      name,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	result := i.DB.Create(&task)
+
+	if err := result.Error; err != nil {
+		return 0, result.Error
+	}
+
+	return task.ID, nil
+}
 
 type Task struct {
 	ID        int
 	Name      string
-	CreatedAt string
-	UpdatedAt string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func main() {
