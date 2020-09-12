@@ -10,6 +10,7 @@ import (
 type TaskStore interface {
 	GetTaskName(id int) string
 	CreateTask(name string) (int, error)
+	DeleteTask(id int) error
 }
 
 type Server struct {
@@ -22,6 +23,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.createTask(w, r)
 	case http.MethodGet:
 		s.showTask(w, r)
+	case http.MethodDelete:
+		s.deleteTask(w, r)
 	}
 }
 
@@ -49,4 +52,19 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusAccepted)
 	fmt.Fprint(w, fmt.Sprintf("Created! id:%d name:%s", id, name))
+}
+
+func (s *Server) deleteTask(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = s.Store.DeleteTask(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	fmt.Fprint(w, fmt.Sprintf("Deleted! id:%d", id))
 }

@@ -32,15 +32,18 @@ func (i *InMemoryStore) CreateTask(name string) (int, error) {
 
 	result := i.DB.Create(&task)
 
-	if err := result.Error; err != nil {
-		return 0, result.Error
-	}
+	return task.ID, result.Error
+}
 
-	return task.ID, nil
+func (i *InMemoryStore) DeleteTask(id int) error {
+	task := Task{ID: id}
+	result := i.DB.Delete(&task)
+
+	return result.Error
 }
 
 type Task struct {
-	ID        int
+	ID        int `gorm:"primary_key"`
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
