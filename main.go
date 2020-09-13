@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/hokita/routine/domain"
 	"github.com/hokita/routine/server"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -14,39 +15,28 @@ type InMemoryStore struct {
 	DB *gorm.DB
 }
 
-func (i *InMemoryStore) GetTaskName(id int) string {
-	var task Task
+func (i *InMemoryStore) GetTask(id int) *domain.Task {
+	var task domain.Task
 	i.DB.First(&task, "id=?", id)
 
-	return task.Name
+	return &task
 }
 
-func (i *InMemoryStore) CreateTask(name string) (int, error) {
+func (i *InMemoryStore) CreateTask(task *domain.Task) error {
 	now := time.Now()
-
-	task := Task{
-		Name:      name,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
+	task.CreatedAt = now
+	task.UpdatedAt = now
 
 	result := i.DB.Create(&task)
-
-	return task.ID, result.Error
-}
-
-func (i *InMemoryStore) DeleteTask(id int) error {
-	task := Task{ID: id}
-	result := i.DB.Delete(&task)
 
 	return result.Error
 }
 
-type Task struct {
-	ID        int `gorm:"primary_key"`
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+func (i *InMemoryStore) DeleteTask(id int) error {
+	task := domain.Task{ID: id}
+	result := i.DB.Delete(&task)
+
+	return result.Error
 }
 
 func main() {

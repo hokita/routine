@@ -1,15 +1,17 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/hokita/routine/domain"
 )
 
 type TaskStore interface {
-	GetTaskName(id int) string
-	CreateTask(name string) (int, error)
+	GetTask(id int) *domain.Task
+	CreateTask(task *domain.Task) error
 	DeleteTask(id int) error
 }
 
@@ -35,23 +37,28 @@ func (s *Server) showTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name := s.Store.GetTaskName(id)
-	if name == "" {
+	task := s.Store.GetTask(id)
+	if task == nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
 
-	fmt.Fprint(w, name)
+	json.NewEncoder(w).Encode(task)
 }
 
 func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
-	id, err := s.Store.CreateTask(name)
-	if err != nil {
+	var task domain.Task
+
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := s.Store.CreateTask(&task); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusAccepted)
-	fmt.Fprint(w, fmt.Sprintf("Created! id:%d name:%s", id, name))
 }
 
 func (s *Server) deleteTask(w http.ResponseWriter, r *http.Request) {
@@ -66,5 +73,5 @@ func (s *Server) deleteTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	}
 
-	fmt.Fprint(w, fmt.Sprintf("Deleted! id:%d", id))
+	w.WriteHeader(http.StatusAccepted)
 }
