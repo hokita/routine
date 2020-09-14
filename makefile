@@ -1,5 +1,9 @@
+.PHONY: front app
 sql:
 	docker-compose exec db psql -U app -d routine
 
-restart:
-	docker-compose restart
+front:
+	docker-compose exec front bash
+
+app:
+	docker-compose exec app bash

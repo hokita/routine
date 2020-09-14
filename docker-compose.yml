@@ -6,11 +6,17 @@ services:
     build:
       context: .
       dockerfile: ./docker/golang/Dockerfile
-    ports:
-      - "8080:8080"
     command: ./main
     depends_on:
       - db
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
   db:
     build:
       context: .
