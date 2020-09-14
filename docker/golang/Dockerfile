@@ -5,6 +5,6 @@ ENV GO111MODULE=on
 ENV GOPATH=
 
 WORKDIR /go
-ADD . /go
+ADD ./app /go
 
 RUN go build -o main main.go

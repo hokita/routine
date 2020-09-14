@@ -6,7 +6,9 @@ services:
     build:
       context: .
       dockerfile: ./docker/golang/Dockerfile
-    command: ./main
+    command: sh -c "go run main.go"
+    volumes:
+      - ./app:/go
     depends_on:
       - db
   nginx:
