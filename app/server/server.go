@@ -15,29 +15,29 @@ type TaskStore interface {
 	DeleteTask(id int) error
 }
 
-type Server struct {
+type TaskHandler struct {
 	Store TaskStore
 }
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodPost:
-		s.createTask(w, r)
 	case http.MethodGet:
-		s.showTask(w, r)
+		h.showTask(w, r)
+	case http.MethodPost:
+		h.createTask(w, r)
 	case http.MethodDelete:
-		s.deleteTask(w, r)
+		h.deleteTask(w, r)
 	}
 }
 
-func (s *Server) showTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) showTask(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	task := s.Store.GetTask(id)
+	task := h.Store.GetTask(id)
 	if task == nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -45,7 +45,7 @@ func (s *Server) showTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) createTask(w http.ResponseWriter, r *http.Request) {
 	var task domain.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
@@ -53,7 +53,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.Store.CreateTask(&task); err != nil {
+	if err := h.Store.CreateTask(&task); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -61,14 +61,14 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (s *Server) deleteTask(w http.ResponseWriter, r *http.Request) {
+func (h *TaskHandler) deleteTask(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err = s.Store.DeleteTask(id)
+	err = h.Store.DeleteTask(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
