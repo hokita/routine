@@ -1,3 +1,7 @@
+# app
+app/main
+
+# front
 front/node_modules/
 
 # Binaries for programs and plugins
