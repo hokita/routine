@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/hokita/routine/domain"
 )
 
@@ -15,26 +16,23 @@ type TaskStore interface {
 	DeleteTask(id int) error
 }
 
-type TaskHandler struct {
+type GetTaskHandler struct {
 	Store TaskStore
 }
 
-func (h *TaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		h.showTask(w, r)
-	case http.MethodPost:
-		h.createTask(w, r)
-	case http.MethodDelete:
-		h.deleteTask(w, r)
-	}
+type CreateTaskHandler struct {
+	Store TaskStore
 }
 
-func (h *TaskHandler) showTask(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
+type DeleteTaskHandler struct {
+	Store TaskStore
+}
+
+func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 
 	task := h.Store.GetTask(id)
@@ -45,7 +43,7 @@ func (h *TaskHandler) showTask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (h *TaskHandler) createTask(w http.ResponseWriter, r *http.Request) {
+func (h *CreateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var task domain.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
@@ -61,7 +59,7 @@ func (h *TaskHandler) createTask(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *TaskHandler) deleteTask(w http.ResponseWriter, r *http.Request) {
+func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/tasks/"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

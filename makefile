@@ -7,3 +7,6 @@ front:
 
 app:
 	docker-compose exec app bash
+
+build:
+	docker-compose exec app go build -o main main.go

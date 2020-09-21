@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/hokita/routine/database"
 	"github.com/hokita/routine/server"
 	"github.com/jinzhu/gorm"
@@ -17,10 +18,14 @@ func main() {
 	}
 	defer db.Close()
 
-	taskHandler := &server.TaskHandler{Store: &database.TaskReposigory{DB: db}}
+	getTaskHandler := &server.GetTaskHandler{Store: &database.TaskReposigory{DB: db}}
+	createTaskHandler := &server.CreateTaskHandler{Store: &database.TaskReposigory{DB: db}}
+	deleteTaskHandler := &server.DeleteTaskHandler{Store: &database.TaskReposigory{DB: db}}
 
-	mux := http.NewServeMux()
-	mux.Handle("/tasks/", taskHandler)
+	mux := mux.NewRouter()
+	mux.Handle("/tasks/{id}", getTaskHandler)
+	mux.Handle("/tasks/", createTaskHandler)
+	mux.Handle("/tasks/", deleteTaskHandler)
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatalf("could not listen on port 8080 %v", err)
