@@ -8,16 +8,24 @@ axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 function App() {
-  const [data, setData] = useState({})
+  const [tasks, setTasks] = useState([])
 
   useEffect(() => {
     const fetchData = async ()  => {
-      const result = await axios.get(`http://localhost:8080/tasks/1`)
-      setData(result.data)
+      const result = await axios.get(`http://localhost:8080/tasks/`)
+      setTasks(result.data)
     }
 
     fetchData()
   }, [])
+
+  const list = (
+    <ul>
+      { tasks.map((task) => {
+        return <li key={task.id}>taskname: {task.name}</li>
+      })}
+    </ul>
+  )
 
   return (
     <div className="App">
@@ -34,7 +42,9 @@ function App() {
         >
           Learn React
         </a>
-        taskname: {data.name}
+      <ul>
+        { list }
+      </ul>
       </header>
     </div>
   );

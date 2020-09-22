@@ -11,6 +11,13 @@ type TaskReposigory struct {
 	DB *gorm.DB
 }
 
+func (repo *TaskReposigory) GetAllTasks() *[]domain.Task {
+	var tasks []domain.Task
+	repo.DB.Find(&tasks)
+
+	return &tasks
+}
+
 func (repo *TaskReposigory) GetTask(id int) *domain.Task {
 	var task domain.Task
 	repo.DB.First(&task, "id=?", id)

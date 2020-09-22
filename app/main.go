@@ -18,11 +18,21 @@ func main() {
 	}
 	defer db.Close()
 
-	getTaskHandler := &server.GetTaskHandler{Store: &database.TaskReposigory{DB: db}}
-	createTaskHandler := &server.CreateTaskHandler{Store: &database.TaskReposigory{DB: db}}
-	deleteTaskHandler := &server.DeleteTaskHandler{Store: &database.TaskReposigory{DB: db}}
+	getAllTasksHandler := &server.GetAllTasksHandler{
+		Store: &database.TaskReposigory{DB: db},
+	}
+	getTaskHandler := &server.GetTaskHandler{
+		Store: &database.TaskReposigory{DB: db},
+	}
+	createTaskHandler := &server.CreateTaskHandler{
+		Store: &database.TaskReposigory{DB: db},
+	}
+	deleteTaskHandler := &server.DeleteTaskHandler{
+		Store: &database.TaskReposigory{DB: db},
+	}
 
 	mux := mux.NewRouter()
+	mux.Handle("/tasks/", getAllTasksHandler)
 	mux.Handle("/tasks/{id}", getTaskHandler)
 	mux.Handle("/tasks/", createTaskHandler)
 	mux.Handle("/tasks/", deleteTaskHandler)

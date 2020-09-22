@@ -11,9 +11,14 @@ import (
 )
 
 type TaskStore interface {
+	GetAllTasks() *[]domain.Task
 	GetTask(id int) *domain.Task
 	CreateTask(task *domain.Task) error
 	DeleteTask(id int) error
+}
+
+type GetAllTasksHandler struct {
+	Store TaskStore
 }
 
 type GetTaskHandler struct {
@@ -26,6 +31,15 @@ type CreateTaskHandler struct {
 
 type DeleteTaskHandler struct {
 	Store TaskStore
+}
+
+func (h *GetAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tasks := h.Store.GetAllTasks()
+	if tasks == nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	json.NewEncoder(w).Encode(tasks)
 }
 
 func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
