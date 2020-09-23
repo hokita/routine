@@ -3,10 +3,6 @@ import axios from 'axios';
 import logo from './logo.svg';
 import './App.css';
 
-axios.defaults.baseURL = 'http://localhost:3000';
-axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
-axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-
 function App() {
   const [tasks, setTasks] = useState([])
 
@@ -19,10 +15,23 @@ function App() {
     fetchData()
   }, [])
 
+  const handleDelete = (id, index) => {
+    axios.delete(`http://localhost:8080/tasks/${id}`)
+      .then(response => {
+        console.info(response.data.message)
+        tasks.splice(index, 1)
+        setTasks(tasks)
+      })
+  }
+
   const list = (
     <ul>
-      { tasks.map((task) => {
-        return <li key={task.id}>taskname: {task.name}</li>
+      { tasks.map((task, index) => {
+        return (
+          <li key={task.id}>
+            taskname: {task.name} <button onClick={() => handleDelete(task.id, index)}>削除</button>
+          </li>
+        )
       })}
     </ul>
   )

@@ -32,12 +32,12 @@ func main() {
 	}
 
 	mux := mux.NewRouter()
-	mux.Handle("/tasks/", getAllTasksHandler)
-	mux.Handle("/tasks/{id}", getTaskHandler)
-	mux.Handle("/tasks/", createTaskHandler)
-	mux.Handle("/tasks/", deleteTaskHandler)
+	mux.Handle("/tasks/", getAllTasksHandler).Methods("GET")
+	mux.Handle("/tasks/", createTaskHandler).Methods("POST")
+	mux.Handle("/tasks/{id}", getTaskHandler).Methods("GET")
+	mux.Handle("/tasks/{id}", deleteTaskHandler).Methods("DELETE")
 
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatalf("could not listen on port 8080 %v", err)
+	if err := http.ListenAndServe(":8081", mux); err != nil {
+		log.Fatalf("could not listen on port 8081 %v", err)
 	}
 }
