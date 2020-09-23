@@ -18,9 +18,9 @@ function App() {
   const handleDelete = (id, index) => {
     axios.delete(`http://localhost:8080/tasks/${id}`)
       .then(response => {
-        console.info(response.data.message)
-        tasks.splice(index, 1)
-        setTasks(tasks)
+        const newTasks = [...tasks]
+        newTasks.splice(index, 1)
+        setTasks(newTasks)
       })
   }
 
