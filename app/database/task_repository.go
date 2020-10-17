@@ -39,14 +39,10 @@ func (repo *TaskReposigory) UpdateTask(id int, newTask *domain.Task) error {
 	var task domain.Task
 	repo.DB.First(&task, "id=?", id)
 
-	newTask.ID = task.ID
-	newTask.CreatedAt = task.CreatedAt
-	if newTask.Name == "" {
-		newTask.Name = task.Name
-	}
-	newTask.UpdatedAt = time.Now()
+	m := make(map[string]interface{})
+	m["done"] = newTask.Done
 
-	result := repo.DB.Model(&task).Update(&newTask)
+	result := repo.DB.Model(&task).Updates(m)
 
 	return result.Error
 }

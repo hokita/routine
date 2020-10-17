@@ -24,6 +24,32 @@ function App() {
     }
   }
 
+  const handleChangeCheck = (event) => {
+    const newTasks = tasks.map((task) => {
+      const {done, ...rest} = task
+      const targetId = Number(event.target.id)
+
+      if(task.id === targetId) {
+        const params = JSON.stringify({ done: event.target.checked });
+        console.log(params)
+        axios.put(`http://localhost:8080/tasks/${task.id}`, params)
+          .then(response => {})
+
+        return ({
+          done: event.target.checked,
+          ...rest
+        })
+      }
+
+      return ({
+        done: task.done,
+        ...rest
+      })
+    })
+
+    setTasks(newTasks)
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -56,12 +82,24 @@ function App() {
     </form>
   )
 
+  const checkBox = (task) => (
+    <input
+      id={task.id}
+      type="checkbox"
+      name="taskCheckbox"
+      value={task.name}
+      checked={task.done}
+      onChange={handleChangeCheck}
+    />
+  )
+
   const list = (
     <div>
       <ul>
         { tasks.map((task, index) => {
           return (
               <li key={task.id}>
+                { checkBox(task) }
                 {task.name} <button onClick={() => handleDelete(task.id, index)}>削除</button>
               </li>
           )
