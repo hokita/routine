@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"encoding/json"
@@ -6,39 +6,16 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/hokita/routine/database"
 	"github.com/hokita/routine/domain"
 )
 
-type TaskStore interface {
-	GetAllTasks() *[]domain.Task
-	GetTask(id int) *domain.Task
-	UpdateTask(id int, task *domain.Task) error
-	CreateTask(task *domain.Task) error
-	DeleteTask(id int) error
+type getAllTasksHandler struct {
+	DB database.TaskDB
 }
 
-type GetAllTasksHandler struct {
-	Store TaskStore
-}
-
-type GetTaskHandler struct {
-	Store TaskStore
-}
-
-type CreateTaskHandler struct {
-	Store TaskStore
-}
-
-type UpdateTaskHandler struct {
-	Store TaskStore
-}
-
-type DeleteTaskHandler struct {
-	Store TaskStore
-}
-
-func (h *GetAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	tasks := h.Store.GetAllTasks()
+func (h *getAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	tasks := h.DB.GetAllTasks()
 	if tasks == nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -46,14 +23,18 @@ func (h *GetAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 
-func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type getTaskHandler struct {
+	DB database.TaskDB
+}
+
+func (h *getTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	task := h.Store.GetTask(id)
+	task := h.DB.GetTask(id)
 	if task == nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -61,7 +42,11 @@ func (h *GetTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (h *CreateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type createTaskHandler struct {
+	DB database.TaskDB
+}
+
+func (h *createTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var task domain.Task
 
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
@@ -69,7 +54,7 @@ func (h *CreateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Store.CreateTask(&task); err != nil {
+	if err := h.DB.CreateTask(&task); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -77,7 +62,11 @@ func (h *CreateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type updateTaskHandler struct {
+	DB database.TaskDB
+}
+
+func (h *updateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -91,7 +80,7 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Store.UpdateTask(id, &task); err != nil {
+	if err := h.DB.UpdateTask(id, &task); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -99,14 +88,18 @@ func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-func (h *DeleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type deleteTaskHandler struct {
+	DB database.TaskDB
+}
+
+func (h *deleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	err = h.Store.DeleteTask(id)
+	err = h.DB.DeleteTask(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}

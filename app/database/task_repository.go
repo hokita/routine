@@ -7,25 +7,25 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type TaskReposigory struct {
+type TaskRepository struct {
 	DB *gorm.DB
 }
 
-func (repo *TaskReposigory) GetAllTasks() *[]domain.Task {
+func (repo *TaskRepository) GetAllTasks() *[]domain.Task {
 	var tasks []domain.Task
 	repo.DB.Order("id").Find(&tasks)
 
 	return &tasks
 }
 
-func (repo *TaskReposigory) GetTask(id int) *domain.Task {
+func (repo *TaskRepository) GetTask(id int) *domain.Task {
 	var task domain.Task
 	repo.DB.First(&task, "id=?", id)
 
 	return &task
 }
 
-func (repo *TaskReposigory) CreateTask(task *domain.Task) error {
+func (repo *TaskRepository) CreateTask(task *domain.Task) error {
 	now := time.Now()
 	task.CreatedAt = now
 	task.UpdatedAt = now
@@ -35,7 +35,7 @@ func (repo *TaskReposigory) CreateTask(task *domain.Task) error {
 	return result.Error
 }
 
-func (repo *TaskReposigory) UpdateTask(id int, newTask *domain.Task) error {
+func (repo *TaskRepository) UpdateTask(id int, newTask *domain.Task) error {
 	var task domain.Task
 	repo.DB.First(&task, "id=?", id)
 
@@ -47,7 +47,7 @@ func (repo *TaskReposigory) UpdateTask(id int, newTask *domain.Task) error {
 	return result.Error
 }
 
-func (repo *TaskReposigory) DeleteTask(id int) error {
+func (repo *TaskRepository) DeleteTask(id int) error {
 	task := domain.Task{ID: id}
 	result := repo.DB.Delete(&task)
 
