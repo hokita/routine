@@ -13,7 +13,7 @@ type TaskReposigory struct {
 
 func (repo *TaskReposigory) GetAllTasks() *[]domain.Task {
 	var tasks []domain.Task
-	repo.DB.Find(&tasks)
+	repo.DB.Order("id").Find(&tasks)
 
 	return &tasks
 }
