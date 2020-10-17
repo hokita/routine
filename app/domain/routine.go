@@ -2,11 +2,9 @@ package domain
 
 import "time"
 
-type Task struct {
+type Routine struct {
 	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	Done      bool      `json:"done"`
-	RoutineID int       `json:"routine_id"`
+	Date      time.Time `json:"date"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
