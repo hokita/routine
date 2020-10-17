@@ -12,6 +12,7 @@ import (
 type TaskStore interface {
 	GetAllTasks() *[]domain.Task
 	GetTask(id int) *domain.Task
+	UpdateTask(id int, task *domain.Task) error
 	CreateTask(task *domain.Task) error
 	DeleteTask(id int) error
 }
@@ -25,6 +26,10 @@ type GetTaskHandler struct {
 }
 
 type CreateTaskHandler struct {
+	Store TaskStore
+}
+
+type UpdateTaskHandler struct {
 	Store TaskStore
 }
 
@@ -65,6 +70,28 @@ func (h *CreateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.Store.CreateTask(&task); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(task)
+}
+
+func (h *UpdateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	var task domain.Task
+
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := h.Store.UpdateTask(id, &task); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

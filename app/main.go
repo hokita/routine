@@ -27,6 +27,9 @@ func main() {
 	createTaskHandler := &server.CreateTaskHandler{
 		Store: &database.TaskReposigory{DB: db},
 	}
+	updateTaskHandler := &server.UpdateTaskHandler{
+		Store: &database.TaskReposigory{DB: db},
+	}
 	deleteTaskHandler := &server.DeleteTaskHandler{
 		Store: &database.TaskReposigory{DB: db},
 	}
@@ -34,6 +37,7 @@ func main() {
 	mux := mux.NewRouter()
 	mux.Handle("/tasks/", getAllTasksHandler).Methods("GET")
 	mux.Handle("/tasks/", createTaskHandler).Methods("POST")
+	mux.Handle("/tasks/{id}", updateTaskHandler).Methods("PUT")
 	mux.Handle("/tasks/{id}", getTaskHandler).Methods("GET")
 	mux.Handle("/tasks/{id}", deleteTaskHandler).Methods("DELETE")
 

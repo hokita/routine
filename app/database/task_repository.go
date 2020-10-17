@@ -35,6 +35,22 @@ func (repo *TaskReposigory) CreateTask(task *domain.Task) error {
 	return result.Error
 }
 
+func (repo *TaskReposigory) UpdateTask(id int, newTask *domain.Task) error {
+	var task domain.Task
+	repo.DB.First(&task, "id=?", id)
+
+	newTask.ID = task.ID
+	newTask.CreatedAt = task.CreatedAt
+	if newTask.Name == "" {
+		newTask.Name = task.Name
+	}
+	newTask.UpdatedAt = time.Now()
+
+	result := repo.DB.Model(&task).Update(&newTask)
+
+	return result.Error
+}
+
 func (repo *TaskReposigory) DeleteTask(id int) error {
 	task := domain.Task{ID: id}
 	result := repo.DB.Delete(&task)
