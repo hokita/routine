@@ -31,7 +31,6 @@ function App() {
 
       if(task.id === targetId) {
         const params = JSON.stringify({ done: event.target.checked });
-        console.log(params)
         axios.put(`http://localhost:8080/tasks/${task.id}`, params)
           .then(response => {})
 
@@ -58,7 +57,6 @@ function App() {
       .then(response => {
         const newTasks = [...tasks]
         newTasks.push(response.data)
-        console.log(response.data)
         setTasks(newTasks)
       })
   }
