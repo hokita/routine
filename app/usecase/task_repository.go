@@ -1,8 +1,8 @@
-package database
+package usecase
 
 import "github.com/hokita/routine/domain"
 
-type TaskDB interface {
+type TaskRepository interface {
 	GetAllTasks() *[]domain.Task
 	GetTask(id int) *domain.Task
 	UpdateTask(id int, task *domain.Task) error

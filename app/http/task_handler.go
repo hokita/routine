@@ -6,12 +6,12 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/hokita/routine/database"
 	"github.com/hokita/routine/domain"
+	"github.com/hokita/routine/usecase"
 )
 
 type getAllTasksHandler struct {
-	DB database.TaskDB
+	DB usecase.TaskRepository
 }
 
 func (h *getAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func (h *getAllTasksHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type getTaskHandler struct {
-	DB database.TaskDB
+	DB usecase.TaskRepository
 }
 
 func (h *getTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func (h *getTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type createTaskHandler struct {
-	DB database.TaskDB
+	DB usecase.TaskRepository
 }
 
 func (h *createTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func (h *createTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type updateTaskHandler struct {
-	DB database.TaskDB
+	DB usecase.TaskRepository
 }
 
 func (h *updateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +89,7 @@ func (h *updateTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type deleteTaskHandler struct {
-	DB database.TaskDB
+	DB usecase.TaskRepository
 }
 
 func (h *deleteTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
