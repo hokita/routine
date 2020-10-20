@@ -17,13 +17,15 @@ func Start() error {
 	defer db.Close()
 
 	taskDB := &database.TaskRepository{DB: db}
+	routineRepo := &database.RoutineRepository{DB: db}
 
 	mux := mux.NewRouter()
 	mux.Handle("/tasks/", &getAllTasksHandler{DB: taskDB}).Methods("GET")
 	mux.Handle("/tasks/", &createTaskHandler{DB: taskDB}).Methods("POST")
-	mux.Handle("/tasks/{id}", &updateTaskHandler{DB: taskDB}).Methods("PUT")
-	mux.Handle("/tasks/{id}", &getTaskHandler{DB: taskDB}).Methods("GET")
-	mux.Handle("/tasks/{id}", &deleteTaskHandler{DB: taskDB}).Methods("DELETE")
+	mux.Handle("/tasks/{id}/", &updateTaskHandler{DB: taskDB}).Methods("PUT")
+	mux.Handle("/tasks/{id}/", &getTaskHandler{DB: taskDB}).Methods("GET")
+	mux.Handle("/tasks/{id}/", &deleteTaskHandler{DB: taskDB}).Methods("DELETE")
+	mux.Handle("/routines/{date}/", &getRoutineHandler{repo: routineRepo}).Methods("GET")
 
 	if err := http.ListenAndServe(":8081", mux); err != nil {
 		return err

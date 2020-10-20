@@ -9,4 +9,5 @@ type Task struct {
 	RoutineID int       `json:"routine_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Routine   Routine
 }
