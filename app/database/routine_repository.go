@@ -14,6 +14,7 @@ type RoutineRepository struct {
 func (repo *RoutineRepository) GetRoutine(date time.Time) *domain.Routine {
 	var routine domain.Routine
 	repo.DB.First(&routine, "date=?", date)
+	repo.DB.Model(&routine).Related(&routine.Tasks)
 
 	return &routine
 }
