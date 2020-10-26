@@ -10,3 +10,4 @@ app:
 
 build:
 	docker-compose exec app go build -o main main.go
+	docker-compose restart app

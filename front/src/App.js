@@ -8,7 +8,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async ()  => {
-      const result = await axios.get(`http://localhost:8080/tasks/`)
+      const result = await axios.get(`http://localhost:8082/tasks/`)
       setTasks(result.data)
     }
 
@@ -31,7 +31,7 @@ function App() {
 
       if(task.id === targetId) {
         const params = JSON.stringify({ done: event.target.checked });
-        axios.put(`http://localhost:8080/tasks/${task.id}`, params)
+        axios.put(`http://localhost:8082/tasks/${task.id}`, params)
           .then(response => {})
 
         return ({
