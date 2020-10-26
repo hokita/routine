@@ -21,11 +21,11 @@ func Start() error {
 
 	mux := mux.NewRouter()
 	mux.Handle("/tasks/", &getAllTasksHandler{DB: taskDB}).Methods("GET")
-	mux.Handle("/tasks/", &createTaskHandler{DB: taskDB}).Methods("POST")
 	mux.Handle("/tasks/{id}/", &updateTaskHandler{DB: taskDB}).Methods("PUT")
 	mux.Handle("/tasks/{id}/", &getTaskHandler{DB: taskDB}).Methods("GET")
 	mux.Handle("/tasks/{id}/", &deleteTaskHandler{DB: taskDB}).Methods("DELETE")
 	mux.Handle("/routines/{date}/", &getRoutineHandler{repo: routineRepo}).Methods("GET")
+	mux.Handle("/routines/{date}/", &createTaskHandler{repo: routineRepo}).Methods("POST")
 
 	if err := http.ListenAndServe(":8081", mux); err != nil {
 		return err

@@ -42,26 +42,6 @@ func (h *getTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
-type createTaskHandler struct {
-	DB usecase.TaskRepository
-}
-
-func (h *createTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var task domain.Task
-
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err := h.DB.CreateTask(&task); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(task)
-}
-
 type updateTaskHandler struct {
 	DB usecase.TaskRepository
 }

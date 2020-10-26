@@ -18,3 +18,15 @@ func (repo *RoutineRepository) GetRoutine(date time.Time) *domain.Routine {
 
 	return &routine
 }
+
+func (repo *RoutineRepository) AddTask(date time.Time, task *domain.Task) (*domain.Routine, error) {
+	var routine domain.Routine
+	repo.DB.First(&routine, "date=?", date)
+	repo.DB.Model(&routine).Related(&routine.Tasks)
+
+	task.RoutineID = routine.ID
+	result := repo.DB.Create(&task)
+	routine.Tasks = append(routine.Tasks, *task)
+
+	return &routine, result.Error
+}

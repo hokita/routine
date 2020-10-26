@@ -8,4 +8,5 @@ import (
 
 type RoutineRepository interface {
 	GetRoutine(date time.Time) *domain.Routine
+	AddTask(date time.Time, task *domain.Task) (*domain.Routine, error)
 }
