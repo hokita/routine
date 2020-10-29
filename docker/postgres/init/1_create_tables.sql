@@ -1,6 +1,6 @@
 create table routines (
     id serial primary key,
-    date date not null,
+    date date not null unique,
     created_at timestamp not null,
     updated_at timestamp not null
 );

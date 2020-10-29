@@ -30,6 +30,37 @@ func (h *getRoutineHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(routine)
 }
 
+type createRoutineHandler struct {
+	repo usecase.RoutineRepository
+}
+
+func (h *createRoutineHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	var params struct {
+		Date string `json:"date"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	t, err := time.Parse("2006-01-02", params.Date)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	routine := domain.Routine{Date: t}
+
+	if err := h.repo.CreateRoutine(&routine); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(routine)
+}
+
 type createTaskHandler struct {
 	repo usecase.RoutineRepository
 }
