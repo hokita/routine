@@ -4,8 +4,11 @@ import (
 	"time"
 
 	"github.com/hokita/routine/domain"
+	"github.com/hokita/routine/usecase"
 	"github.com/jinzhu/gorm"
 )
+
+var _ usecase.TaskRepository = (*TaskRepository)(nil)
 
 type TaskRepository struct {
 	DB *gorm.DB
