@@ -30,6 +30,19 @@ func (h *getRoutineHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(routine)
 }
 
+type getTodaysRoutineHandler struct {
+	repo usecase.RoutineRepository
+}
+
+func (h *getTodaysRoutineHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	routine := h.repo.GetRoutine(time.Now())
+	if routine == nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	json.NewEncoder(w).Encode(routine)
+}
+
 type createRoutineHandler struct {
 	repo usecase.RoutineRepository
 }

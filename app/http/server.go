@@ -24,6 +24,8 @@ func Start() error {
 	mux.Handle("/tasks/{id}/", &updateTaskHandler{DB: taskDB}).Methods("PUT")
 	mux.Handle("/tasks/{id}/", &getTaskHandler{DB: taskDB}).Methods("GET")
 	mux.Handle("/tasks/{id}/", &deleteTaskHandler{DB: taskDB}).Methods("DELETE")
+
+	mux.Handle("/routines/today/", &getTodaysRoutineHandler{repo: routineRepo}).Methods("GET")
 	mux.Handle("/routines/{date}/", &getRoutineHandler{repo: routineRepo}).Methods("GET")
 	mux.Handle("/routines/", &createRoutineHandler{repo: routineRepo}).Methods("POST")
 	mux.Handle("/routines/{date}/", &createTaskHandler{repo: routineRepo}).Methods("POST")
