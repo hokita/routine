@@ -101,3 +101,24 @@ func (h *createTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(routine)
 }
+
+type createTodaysTaskHandler struct {
+	repo usecase.RoutineRepository
+}
+
+func (h *createTodaysTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var task domain.Task
+
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	routine, err := h.repo.AddTask(time.Now(), &task)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(routine)
+}

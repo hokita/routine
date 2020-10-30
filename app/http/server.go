@@ -28,6 +28,7 @@ func Start() error {
 	mux.Handle("/routines/today/", &getTodaysRoutineHandler{repo: routineRepo}).Methods("GET")
 	mux.Handle("/routines/{date}/", &getRoutineHandler{repo: routineRepo}).Methods("GET")
 	mux.Handle("/routines/", &createRoutineHandler{repo: routineRepo}).Methods("POST")
+	mux.Handle("/routines/today/", &createTodaysTaskHandler{repo: routineRepo}).Methods("POST")
 	mux.Handle("/routines/{date}/", &createTaskHandler{repo: routineRepo}).Methods("POST")
 
 	if err := http.ListenAndServe(":8081", mux); err != nil {
