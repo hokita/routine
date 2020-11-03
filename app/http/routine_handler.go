@@ -114,11 +114,20 @@ func (h *createTodaysTaskHandler) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	routine, err := h.repo.AddTask(time.Now(), &task)
+	routine := h.repo.GetRoutine(time.Now())
+	if routine.ID == 0 {
+		todaysRoutine := domain.Routine{Date: time.Now()}
+		if err := h.repo.CreateRoutine(&todaysRoutine); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	newRoutine, err := h.repo.AddTask(time.Now(), &task)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(routine)
+	json.NewEncoder(w).Encode(newRoutine)
 }
