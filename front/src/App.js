@@ -8,8 +8,8 @@ function App() {
 
   useEffect(() => {
     const fetchData = async ()  => {
-      const result = await axios.get(`http://localhost:8082/tasks/`)
-      setTasks(result.data)
+      const result = await axios.get(`http://localhost:8082/routines/today/`)
+      setTasks(result.data.Tasks)
     }
 
     fetchData()
@@ -31,7 +31,7 @@ function App() {
 
       if(task.id === targetId) {
         const params = JSON.stringify({ done: event.target.checked });
-        axios.put(`http://localhost:8082/tasks/${task.id}`, params)
+        axios.put(`http://localhost:8082/tasks/${task.id}/`, params)
           .then(response => {})
 
         return ({
@@ -53,16 +53,14 @@ function App() {
     event.preventDefault();
 
     const params = JSON.stringify({ name: task });
-    axios.post(`http://localhost:8080/tasks/`, params)
+    axios.post(`http://localhost:8082/routines/today/`, params)
       .then(response => {
-        const newTasks = [...tasks]
-        newTasks.push(response.data)
-        setTasks(newTasks)
+        setTasks(response.data.Tasks)
       })
   }
 
   const handleDelete = (id, index) => {
-    axios.delete(`http://localhost:8080/tasks/${id}`)
+    axios.delete(`http://localhost:8082/tasks/${id}/`)
       .then(response => {
         const newTasks = [...tasks]
         newTasks.splice(index, 1)
